@@ -17,7 +17,6 @@
 #include <tinytemplate.hpp>
 
 #include "helper.h"
-#include "mqtt.h"
 
 
 Application::Application(int argc, char *argv[])
@@ -25,9 +24,9 @@ Application::Application(int argc, char *argv[])
     , argv(argv)
     , fdDevice(-1)
     , fdSignal(-1)
+    , mqttClient(nullptr, &mosquitto_destroy)
 {
-    mosqpp::lib_init();
-    mqttClient.reset(new MQTT);
+    mosquitto_lib_init();
 }
 
 Application::~Application()
@@ -35,7 +34,7 @@ Application::~Application()
     closeSignal();
     closeDevice();
     mqttClient.reset();
-    mosqpp::lib_cleanup();
+    mosquitto_lib_cleanup();
 }
 
 void Application::Run()
@@ -45,18 +44,29 @@ void Application::Run()
         parseArguments();
         openDevice();
         openSignal();
-        mqttClient->reinitialise(NULL, true);
-        if(!options["mqtt_username"].empty()) {
-            mqttClient->username_pw_set(options["mqtt_username"].c_str(), options["mqtt_passwd"].c_str());
+        mosquitto_reinitialise(mqttClient.get(), nullptr, true, this);
+        if(!options["username"].empty()) {
+            mosquitto_username_pw_set(mqttClient.get(), options["username"].c_str(), options["passwd"].c_str());
         }
-        mqttClient->loop_start();
+        mosquitto_loop_start(mqttClient.get());
 
+        int mqttKeepAlive = 60;
+        if(!options["keep-alive"].empty()) {
+            mqttKeepAlive = std::stoi(options["keep-alive"]);
+        }
+        if(options["port"].empty()) {
+            mosquitto_connect_srv(mqttClient.get(), options["host"].c_str(), mqttKeepAlive, nullptr);
+        }
+        else {
+            mosquitto_connect_async(mqttClient.get(), options["host"].c_str(), std::stoi(options["port"]), mqttKeepAlive);
+        }
+        int mid;
+        mosquitto_subscribe(mqttClient.get(), &mid, (options["device-topic"]+"/+/control").c_str(),0);
 
         reload = pollingLoop();
 
-        mqttClient->disconnect();
-        mqttClient->loop_stop();
-
+        mosquitto_disconnect(mqttClient.get());
+        mosquitto_loop_stop(mqttClient.get(), false);
 
         closeSignal();
         closeDevice();

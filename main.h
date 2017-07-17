@@ -3,8 +3,7 @@
 
 #include <map>
 #include <memory>
-
-class MQTT;
+#include <mosquitto.h>
 
 class Application
 {
@@ -39,7 +38,7 @@ private:
     int fdDevice;
     int fdSignal;
     std::map<std::string, std::string> options;
-    std::unique_ptr<MQTT> mqttClient;
+    std::unique_ptr<mosquitto, decltype(&mosquitto_destroy)> mqttClient;
 };
 
 
