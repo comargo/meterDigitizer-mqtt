@@ -176,9 +176,8 @@ void Application::openSignal()
 
 void Application::openMQTT()
 {
-    int ret;
     mqttClient.reset(mosquitto_new(nullptr, true, this));
-    ret = mosquitto_reinitialise(mqttClient.get(), nullptr, true, this);
+    mosquitto_reinitialise(mqttClient.get(), nullptr, true, this);
 
     mosquitto_connect_callback_set(mqttClient.get(), &Application::onMqttConnect);
     mosquitto_disconnect_callback_set(mqttClient.get(), &Application::onMqttDisconnect);
@@ -191,17 +190,17 @@ void Application::openMQTT()
 
 
     if(!options["username"].empty()) {
-        ret = mosquitto_username_pw_set(mqttClient.get(), options["username"].c_str(), options["passwd"].c_str());
+        mosquitto_username_pw_set(mqttClient.get(), options["username"].c_str(), options["passwd"].c_str());
     }
     if(options["port"].empty()) {
         curConnectionState = connection::server;
-        ret = mosquitto_connect_srv(mqttClient.get(), options["host"].c_str(), std::stoi(options["keep-alive"]), nullptr);
+        mosquitto_connect_srv(mqttClient.get(), options["host"].c_str(), std::stoi(options["keep-alive"]), nullptr);
     }
     else {
         curConnectionState = connection::host;
-        ret = mosquitto_connect_async(mqttClient.get(), options["host"].c_str(), std::stoi(options["port"]), std::stoi(options["keep-alive"]));
+        mosquitto_connect_async(mqttClient.get(), options["host"].c_str(), std::stoi(options["port"]), std::stoi(options["keep-alive"]));
     }
-    ret = mosquitto_loop_start(mqttClient.get());
+    mosquitto_loop_start(mqttClient.get());
 
 
     {
@@ -233,8 +232,8 @@ void Application::openMQTT()
         }
     }
 
-    ret = mosquitto_subscribe(mqttClient.get(), nullptr, (options["device-topic"]+"/+/control").c_str(),0);
-    ret = mosquitto_subscribe(mqttClient.get(), nullptr, (options["device-topic"]+"/control").c_str(),0);
+    mosquitto_subscribe(mqttClient.get(), nullptr, (options["device-topic"]+"/+/control").c_str(),0);
+    mosquitto_subscribe(mqttClient.get(), nullptr, (options["device-topic"]+"/control").c_str(),0);
 }
 
 void Application::closeMQTT()
@@ -300,18 +299,20 @@ bool Application::pollingLoop()
                     }
                     else if(fd.fd == fdDevice) {
                         char ch;
-                        read(fdDevice, &ch, 1);
-                        if(ch == '\n') {
-                            if(!serialData.empty() && serialData.back() == '\r') {
-                                serialData.pop_back();
+                        ssize_t ret = read(fdDevice, &ch, 1);
+                        if(ret != 1) {
+                            if(ch == '\n') {
+                                if(!serialData.empty() && serialData.back() == '\r') {
+                                    serialData.pop_back();
+                                }
+                                if(!serialData.empty()) {
+                                    processSerialData(serialData);
+                                    serialData.clear();
+                                }
                             }
-                            if(!serialData.empty()) {
-                                processSerialData(serialData);
-                                serialData.clear();
+                            else {
+                                serialData.push_back(ch);
                             }
-                        }
-                        else {
-                            serialData.push_back(ch);
                         }
                     }
                 }
@@ -418,12 +419,18 @@ void Application::onMqttMessage(const mosquitto_message *message)
         Json::Value jsonTime = payload.get("time", Json::Value());
         if(!jsonTime.isNull()) {
             std::string setTimeCmd = tinytemplate::render("SET TIME {{time}}\r",{{"time",jsonTime.asString()}});
-            write(fdDevice, setTimeCmd.data(), setTimeCmd.size());
+            ssize_t ret = write(fdDevice, setTimeCmd.data(), setTimeCmd.size());
+            if(ret != (ssize_t)setTimeCmd.size()) {
+                std::cerr << "Error sending command \"" << setTimeCmd << "\"" << std::endl;
+            }
         }
         Json::Value jsonList = payload.get("list", Json::Value());
         if(!jsonList.isNull()){
             std::string listCmd("LIST\r");
-            write(fdDevice, listCmd.data(), listCmd.size());
+            ssize_t ret = write(fdDevice, listCmd.data(), listCmd.size());
+            if(ret != (ssize_t)listCmd.size()) {
+                std::cerr << "Error sending command \"" << listCmd << "\"" << std::endl;
+            }
         }
         return;
     }
@@ -445,7 +452,10 @@ void Application::onMqttMessage(const mosquitto_message *message)
         if(!jsonVal.isNull() && jsonVal.isConvertibleTo(Json::realValue)) {
             char cmd[256];
             std::sprintf(cmd, "SET METER %d %.3f\r", deviceId, jsonVal.asFloat());
-            write(fdDevice, cmd, strlen(cmd));
+            ssize_t ret = write(fdDevice, cmd, strlen(cmd));
+            if(ret != (ssize_t)strlen(cmd)) {
+                std::cerr << "Error sending command \"" << cmd << "\"" << std::endl;
+            }
         }
     }
 }
