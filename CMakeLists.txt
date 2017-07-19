@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.5)
 project(meterDigitizer-mqtt)
 
+include(GNUInstallDirs)
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
 find_package(PkgConfig REQUIRED)
@@ -24,3 +26,8 @@ target_link_libraries(${PROJECT_NAME} ${LIBCONFIGXX_LIBRARY_DIRS} ${LIBCONFIGXX_
 target_include_directories(${PROJECT_NAME}  PRIVATE ${LIBCONFIGXX_INCLUDE_DIRS})
 target_compile_options(${PROJECT_NAME} PRIVATE ${LIBCONFIGXX_CFLAGS_OTHER})
 
+#Install
+configure_file(meterDigitizer-mqtt@.service.in ${CMAKE_CURRENT_BINARY_DIR}/meterDigitizer-mqtt@.service)
+install(TARGETS ${PROJECT_NAME}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_SBINDIR} COMPONENT bin)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/meterDigitizer-mqtt@.service DESTINATION /lib/systemd/system/)

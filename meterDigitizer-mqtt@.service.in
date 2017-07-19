@@ -1,0 +1,9 @@
+[Unit]
+Description=meterDigitizer MQTT bridge
+After=network.target
+
+[Service]
+ExecStart=/bin/sh -c "exec ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_SBINDIR}/${PROJECT_NAME} %I"
+
+[Install]
+WantedBy=default.target
