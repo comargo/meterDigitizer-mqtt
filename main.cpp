@@ -55,6 +55,7 @@ void Application::Run()
 
         reload = pollingLoop();
 
+        closeMQTT();
         closeSignal();
         closeDevice();
     } while(!reload);
