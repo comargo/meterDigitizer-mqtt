@@ -405,8 +405,7 @@ void Application::onMqttDisconnect(int rc)
     case connection::server:
         // Server connection failed, lets try host
         curConnectionState = connection::host;
-        options["port"] = "1883";
-        mosquitto_connect_async(mqttClient.get(), options["host"].c_str(), std::stoi(options["port"]), std::stoi(options["keep-alive"]));
+        mosquitto_connect_async(mqttClient.get(), options["host"].c_str(), 1883, std::stoi(options["keep-alive"]));
         break;
     case connection::host:
         curConnectionState = connection::error;
