@@ -5,7 +5,7 @@ BindsTo=dev-%i.device
 After=dev-%i.device
 
 [Service]
-ExecStart=${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_SBINDIR}/${PROJECT_NAME} -d /dev/%I
+ExecStart=${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/${PROJECT_NAME} -d /dev/%I
 ExecReload=/bin/kill -HUP $MAINPID
 Restart=on-failure
 RestartSec=60
