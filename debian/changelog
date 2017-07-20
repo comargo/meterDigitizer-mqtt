@@ -1,0 +1,15 @@
+meterdigitizer-mqtt (0.0.1-1) xenial; urgency=medium
+
+  * Initial release (Closes: #1)
+  * Switch to libmosquitto (not a C++ wrapper)
+  * Implement MQTT transport
+  * Remove warnings
+  * Add installation step and create 'checkinstall' wrapper
+  * Close MQTT on reload/quit
+  * Fix error on handling 'reload' param
+  * Add some verbosity
+  * Add dependencies on udev device
+  * Decided to move application to /usr/bin directory
+  * Change default port handling (don't save it in options)
+
+ -- Cyril Margorin <comargo@gmail.com>  Thu, 20 Jul 2017 21:06:11 +0300

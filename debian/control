@@ -1,0 +1,22 @@
+Source: meterdigitizer-mqtt
+Section: embedded
+Priority: optional
+Maintainer: Cyril Margorin <comargo@gmail.com>
+Build-Depends: 
+	debhelper (>=9),
+	dh-exec,
+	cmake,
+	pkg-config,
+	libconfig++-dev,
+	libjsoncpp-dev,
+	libmosquitto-dev
+Standards-Version: 3.9.7
+Homepage: https://github.com/comargo/meterDigitizer-mqtt
+Vcs-Git: https://github.com/comargo/meterDigitizer-mqtt.git
+Vcs-Browser: https://github.com/comargo/meterDigitizer-mqtt
+
+Package: meterdigitizer-mqtt
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Bridge between meterDigitizer device and MQTT broker
+ Creates bridge between meterDigitizer device and MQTT broker
