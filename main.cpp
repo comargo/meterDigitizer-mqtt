@@ -58,7 +58,7 @@ void Application::Run()
         closeMQTT();
         closeSignal();
         closeDevice();
-    } while(!reload);
+    } while(reload);
 }
 
 void Application::parseArguments()
