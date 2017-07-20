@@ -171,7 +171,7 @@ void Application::openSignal()
 {
     sigset_t sigset;
     sigemptyset(&sigset);
-//    sigaddset(&sigset, SIGINT);
+    sigaddset(&sigset, SIGINT);
     sigaddset(&sigset, SIGHUP);
     sigaddset(&sigset, SIGTERM);
     sigaddset(&sigset, SIGUSR1);
