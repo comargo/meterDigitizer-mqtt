@@ -1,9 +1,14 @@
 [Unit]
 Description=meterDigitizer MQTT bridge
 After=network.target
+BindsTo=dev-%i.device
+After=dev-%i.device
 
 [Service]
-ExecStart=/bin/sh -c "exec ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_SBINDIR}/${PROJECT_NAME} %I"
+ExecStart=${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_SBINDIR}/${PROJECT_NAME} -d /dev/%I
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+RestartSec=60
 
 [Install]
 WantedBy=default.target

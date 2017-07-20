@@ -1,0 +1,2 @@
+#STM32 devices
+ATTRS{idVendor}=="0483", SUBSYSTEM=="tty", ENV{ID_MM_DEVICE_IGNORE}="1", ENV{SYSTEMD_WANTS}="meterDigitizer-mqtt@$name.service", TAG+="systemd"

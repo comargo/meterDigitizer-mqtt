@@ -30,4 +30,5 @@ target_compile_options(${PROJECT_NAME} PRIVATE ${LIBCONFIGXX_CFLAGS_OTHER})
 configure_file(meterDigitizer-mqtt@.service.in ${CMAKE_CURRENT_BINARY_DIR}/meterDigitizer-mqtt@.service)
 install(TARGETS ${PROJECT_NAME}
     RUNTIME DESTINATION ${CMAKE_INSTALL_SBINDIR} COMPONENT bin)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/61-meterDigitizer.rules DESTINATION /lib/udev/rules.d/)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/meterDigitizer-mqtt@.service DESTINATION /lib/systemd/system/)
