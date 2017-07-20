@@ -48,17 +48,25 @@ void Application::Run()
 {
     bool reload = false;
     do {
+        std::cout << "Loading configuration..." << std::endl;
         parseArguments();
+
+        std::cout << "Connecting..." << std::endl;
         openDevice();
         openSignal();
         openMQTT();
 
+        std::cout << "Start processing" << std::endl;
+
         reload = pollingLoop();
+
+        std::cout << "Closing..." << std::endl;
 
         closeMQTT();
         closeSignal();
         closeDevice();
     } while(reload);
+    std::cout << "Quit";
 }
 
 void Application::parseArguments()
@@ -291,8 +299,10 @@ bool Application::pollingLoop()
                     if(fd.fd == fdSignal) {
                         switch(processSignal()) {
                         case signal_action::quit:
+                            std::cout << "Quit signal detected" << std::endl;
                             return false;
                         case signal_action::reload:
+                            std::cout << "Reload signal detected" << std::endl;
                             return true;
                         case signal_action::ignore:
                             break;
