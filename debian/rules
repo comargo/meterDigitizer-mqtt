@@ -16,6 +16,9 @@
 
 %:
 	dh $@ --buildsystem=cmake
+	
+override_dh_strip:
+	dh_strip --dbg-package=meterdigitizer-mqtt-dbgsym
 
 
 # dh_make generated override targets
