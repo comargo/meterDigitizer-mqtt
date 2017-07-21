@@ -311,7 +311,7 @@ bool Application::pollingLoop()
                     else if(fd.fd == fdDevice) {
                         char ch;
                         ssize_t ret = read(fdDevice, &ch, 1);
-                        if(ret != 1) {
+                        if(ret == 1) {
                             if(ch == '\n') {
                                 if(!serialData.empty() && serialData.back() == '\r') {
                                     serialData.pop_back();
